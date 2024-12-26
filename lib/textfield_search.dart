@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 
 class TextFieldSearch extends StatefulWidget {
   /// A default list of values that can be used for an initial list of elements to select from
@@ -16,8 +17,7 @@ class TextFieldSearch extends StatefulWidget {
 
   /// The value selected on tap of an element within the list
   final Function? getSelectedValue;
-  
-  
+
   /// Used for customizing the display of the CursorColor
   final MaterialColor? cursorColor;
 
@@ -42,6 +42,8 @@ class TextFieldSearch extends StatefulWidget {
   /// A boolean used for deciding whether or not to clear TextField when unfocused
   final bool autoClear;
 
+  final String noMatchItemsString;
+
   /// Creates a TextFieldSearch for displaying selected elements and retrieving a selected element
   const TextFieldSearch(
       {Key? key,
@@ -52,12 +54,13 @@ class TextFieldSearch extends StatefulWidget {
       this.future,
       this.getSelectedValue,
       this.cursorColor,
-        this.resultsBackgroundColor,
+      this.resultsBackgroundColor,
       this.decoration,
       this.scrollbarDecoration,
       this.itemsInView = 3,
       this.minStringLength = 2,
-      this.autoClear = true})
+      this.autoClear = true,
+      this.noMatchItemsString = "No matching items"})
       : super(key: key);
 
   @override
@@ -101,9 +104,8 @@ class _TextFieldSearchState extends State<TextFieldSearch> {
       filteredList = tempList;
       loading = false;
       // if no items are found, add message none found
-      itemsFound = tempList.isEmpty && widget.controller.text.isNotEmpty
-          ? false
-          : true;
+      itemsFound =
+          tempList.isEmpty && widget.controller.text.isNotEmpty ? false : true;
     });
     // mark that the overlay widget needs to be rebuilt so results can show
     _overlayEntry.markNeedsBuild();
@@ -200,7 +202,6 @@ class _TextFieldSearchState extends State<TextFieldSearch> {
           // reset the list so it's empty and not visible
           resetList();
           if (widget.autoClear == true) widget.controller.clear();
-          
         }
         // if we have a list of items, make sure the text input matches one of them
         // if not, clear the input
@@ -213,7 +214,8 @@ class _TextFieldSearchState extends State<TextFieldSearch> {
           } else {
             textMatchesItem = filteredList!.contains(widget.controller.text);
           }
-          if (textMatchesItem == false && widget.autoClear == true) widget.controller.clear();
+          if (textMatchesItem == false && widget.autoClear == true)
+            widget.controller.clear();
           resetList();
         }
       }
@@ -247,7 +249,7 @@ class _TextFieldSearchState extends State<TextFieldSearch> {
               FocusScope.of(context).unfocus();
             },
             child: ListTile(
-              title: Text('No matching items.'),
+              title: Text(widget.noMatchItemsString),
               trailing: Icon(Icons.cancel),
             ),
           ),
@@ -374,9 +376,11 @@ class _TextFieldSearchState extends State<TextFieldSearch> {
       link: _layerLink,
       child: TextField(
         controller: widget.controller,
-        cursorColor: widget.cursorColor ?? DefaultSelectionStyle.of(context).cursorColor,
+        cursorColor:
+            widget.cursorColor ?? DefaultSelectionStyle.of(context).cursorColor,
         focusNode: _focusNode,
-        decoration: widget.decoration ?? InputDecoration(labelText: widget.label),
+        decoration:
+            widget.decoration ?? InputDecoration(labelText: widget.label),
         style: widget.textStyle,
         onChanged: (String value) {
           // every time we make a change to the input, update the list
